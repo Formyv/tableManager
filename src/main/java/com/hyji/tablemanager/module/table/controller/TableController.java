@@ -1,10 +1,10 @@
-package com.hyji.tablemanger.module.table.controller;
+package com.hyji.tablemanager.module.table.controller;
 
-import com.hyji.tablemanger.common.ApiResult;
-import com.hyji.tablemanger.common.PageInfo;
-import com.hyji.tablemanger.module.table.pojo.Table;
-import com.hyji.tablemanger.module.table.pojo.TableRequestParam;
-import com.hyji.tablemanger.module.table.service.TableService;
+import com.hyji.tablemanager.common.ApiResult;
+import com.hyji.tablemanager.common.PageInfo;
+import com.hyji.tablemanager.module.table.pojo.Table;
+import com.hyji.tablemanager.module.table.pojo.TableRequestParam;
+import com.hyji.tablemanager.module.table.service.TableService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

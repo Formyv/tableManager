@@ -1,4 +1,4 @@
-package com.hyji.tablemanger;
+package com.hyji.tablemanager;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,4 +1,4 @@
-package com.hyji.tablemanger.common;
+package com.hyji.tablemanager.common;
 
 import lombok.Data;
 

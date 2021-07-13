@@ -1,4 +1,4 @@
-package com.hyji.tablemanger.module.table.pojo;
+package com.hyji.tablemanager.module.table.pojo;
 
 import lombok.Data;
 

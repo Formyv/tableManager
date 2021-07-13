@@ -1,9 +1,9 @@
-package com.hyji.tablemanger.module.table.service.impl;
+package com.hyji.tablemanager.module.table.service.impl;
 
-import com.hyji.tablemanger.BaseTest;
-import com.hyji.tablemanger.common.PageInfo;
-import com.hyji.tablemanger.module.table.pojo.TableRequestParam;
-import com.hyji.tablemanger.module.table.service.TableService;
+import com.hyji.tablemanager.BaseTest;
+import com.hyji.tablemanager.common.PageInfo;
+import com.hyji.tablemanager.module.table.pojo.TableRequestParam;
+import com.hyji.tablemanager.module.table.service.TableService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

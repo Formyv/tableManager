@@ -1,8 +1,8 @@
-package com.hyji.tablemanger.module.table.dao;
+package com.hyji.tablemanager.module.table.dao;
 
-import com.hyji.tablemanger.common.PageInfo;
-import com.hyji.tablemanger.module.table.pojo.Table;
-import com.hyji.tablemanger.module.table.pojo.TableRequestParam;
+import com.hyji.tablemanager.common.PageInfo;
+import com.hyji.tablemanager.module.table.pojo.Table;
+import com.hyji.tablemanager.module.table.pojo.TableRequestParam;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.annotations.Param;
 

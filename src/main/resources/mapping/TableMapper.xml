@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.hyji.tablemanger.module.table.dao.TableMapper">
+<mapper namespace="com.hyji.tablemanager.module.table.dao.TableMapper">
     <insert id="insert">
         <selectKey keyProperty="id" resultType="int" order="BEFORE">
             select nvl(max(id),0)+1 from TT_TABLE_INFO
@@ -17,16 +17,16 @@
         where id = #{param.id}
     </update>
 
-    <select id="list" resultType="com.hyji.tablemanger.module.table.pojo.Table">
+    <select id="list" resultType="com.hyji.tablemanager.module.table.pojo.Table">
         select *
         from tt_table_info
     </select>
-    <resultMap id="BaseResultMap" type="com.hyji.tablemanger.module.table.pojo.Table">
+    <resultMap id="BaseResultMap" type="com.hyji.tablemanager.module.table.pojo.Table">
         <id column="id" property="id" jdbcType="VARCHAR"/>
         <result column="tableName" property="tableName" jdbcType="VARCHAR"/>
         <result column="tableNameCn" property="tableNameCn" jdbcType="VARCHAR"/>
         <collection property="fields" javaType="java.util.ArrayList"
-                    ofType="com.hyji.tablemanger.module.table.pojo.Field">
+                    ofType="com.hyji.tablemanager.module.table.pojo.Field">
             <id column="fid" property="id"/>
             <result column="fieldName" property="fieldName"/>
             <result column="fieldNameCn" property="fieldNameCn"/>
