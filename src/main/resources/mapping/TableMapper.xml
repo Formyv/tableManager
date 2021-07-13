@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hyji.tablemanger.module.table.dao.TableMapper">
+    <insert id="insert">
+        <selectKey keyProperty="id" resultType="int" order="BEFORE">
+            select nvl(max(id),0)+1 from TT_TABLE_INFO
+        </selectKey>
+        insert into TT_TABLE_INFO (id, TABLE_NAME, ENABLED, DEL_FLAG, TABLE_NAME_CN) values (#{id}, #{param.tableName},
+        1, 0,
+        #{param.tableNameCn})
+    </insert>
+    <update id="update">
+        UPDATE TT_TABLE_INFO SET
+        <if test='param.tableName != "" or param.tableName != null '>TABLE_NAME = #{param.tableName},</if>
+        <if test='param.tableNameCn != "" or param.tableNameCn != null '>TABLE_NAME_CN = #{param.tableNameCn},</if>
+        enabled = 1
+        where id = #{param.id}
+    </update>
+
+    <select id="list" resultType="com.hyji.tablemanger.module.table.pojo.Table">
+        select *
+        from tt_table_info
+    </select>
+    <resultMap id="BaseResultMap" type="com.hyji.tablemanger.module.table.pojo.Table">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="tableName" property="tableName" jdbcType="VARCHAR"/>
+        <result column="tableNameCn" property="tableNameCn" jdbcType="VARCHAR"/>
+        <collection property="fields" javaType="java.util.ArrayList"
+                    ofType="com.hyji.tablemanger.module.table.pojo.Field">
+            <id column="fid" property="id"/>
+            <result column="fieldName" property="fieldName"/>
+            <result column="fieldNameCn" property="fieldNameCn"/>
+            <result column="fieldType" property="fieldType"/>
+        </collection>
+    </resultMap>
+    <select id="getTableDetailById" resultMap="BaseResultMap">
+        select t.id            as id,
+               t.TABLE_NAME    as tableName,
+               t.TABLE_NAME_CN as tableNameCn,
+               f.id            as fid,
+               f.FIELD_NAME    as fieldName,
+               f.FIELD_NAME_CN as fieldNameCn,
+               f.FIELD_TYPE    as fieldType
+        from tt_table_info t
+                 left join tt_field_info f on t.id = f.table_id
+        where t.del_flag = 0
+          and f.del_flag = 0
+    </select>
+
+</mapper>

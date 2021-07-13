@@ -1,0 +1,17 @@
+server:
+  port: 18080
+spring:
+  datasource:
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    url: jdbc:oracle:thin:@//LAPTOP-MHU8JTO5:1521/XE
+    username: jhy
+    password: YXjhy19921225
+  thymeleaf:
+    check-template: false
+    check-template-location: false
+
+mybatis:
+  mapper-locations: classpath:mapping/*Mapper.xml
+#    url: jdbc:oracle:thin:@//10.39.192.10:1521/jzgzgl
+#    username: tablequerymanager
+#    password: aSia)zo18(
