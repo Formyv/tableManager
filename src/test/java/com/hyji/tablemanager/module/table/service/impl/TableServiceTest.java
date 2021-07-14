@@ -18,7 +18,7 @@ class TableServiceTest extends BaseTest {
         tableRequestParam.setId(1);
         tableRequestParam.setTableName("tt_test");
         tableRequestParam.setTableNameCn("test");
-        tableService.update(tableRequestParam);
+        tableService.updateTable(tableRequestParam);
     }
 
 }

@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * @Description field info
+ * @Description col of record
  * @Author jhy
  * @Version: V1.0
  * @copyright Ailk SSP-JS Jiangsu-CSS 1 Dept.
@@ -13,10 +13,8 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class Field extends BaseDao {
-    private int id;
-    private int tableId;
-    private String fieldName;
-    private String fieldNameCn;
-    private String fieldType;
+public class Col extends BaseDao {
+    private int recordId;
+    private String fieldId;
+    private String instanceValue;
 }

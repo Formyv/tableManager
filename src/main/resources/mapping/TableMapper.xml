@@ -9,6 +9,7 @@
         1, 0,
         #{param.tableNameCn})
     </insert>
+
     <update id="update">
         UPDATE TT_TABLE_INFO SET
         <if test='param.tableName != "" or param.tableName != null '>TABLE_NAME = #{param.tableName},</if>
@@ -17,10 +18,75 @@
         where id = #{param.id}
     </update>
 
+    <update id="delRecord">
+        update tt_record
+        set del_flag = 1
+        where id = #{param.recordId}
+    </update>
+
+    <delete id="delCols">
+        DELETE FROM TT_INSTANCE WHERE RECORD_ID = #{param.recordId}
+    </delete>
+
+    <insert id="insertField">
+        <selectKey keyProperty="id" resultType="int" order="BEFORE">
+            select nvl(max(id),0)+1 from TT_FIELD_INFO
+        </selectKey>
+        insert into TT_FIELD_INFO (ID, TABLE_ID, FIELD_NAME, FIELD_NAME_CN, FIELD_TYPE, ENABLED, DEL_FLAG)
+        values (#{id}, #{param.tableId}, #{param.fieldName}, #{param.fieldNameCn}, #{param.fieldType}, 1, 0);
+    </insert>
+
+    <insert id="insertRecord" useGeneratedKeys="true">
+        <selectKey keyProperty="id" resultType="int" order="BEFORE">
+            SELECT NVL(MAX(ID),0)+1 FROM TT_RECORD
+        </selectKey>
+        INSERT INTO TT_RECORD (ID, TABLE_ID, ENABLED, DEL_FLAG)
+        VALUES (#{id}, #{param.tableId}, 1, 0);
+    </insert>
+
+    <insert id="insertCols">
+        INSERT INTO TT_INSTANCE
+        (
+        RECORD_ID,
+        FIELD_ID,
+        INSTANCE_VALUE
+        )
+        <foreach item="item" index="index" collection="list" separator="union all">
+            (
+            SELECT #{param.id},
+            #{item.fieldId},
+            #{item.instanceValue}
+            FROM DUAL
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateField">
+        UPDATE TT_FIELD_INFO SET
+        <if test='param.fieldName != "" or param.fieldName != null '>FIELD_NAME = #{param.fieldName},</if>
+        <if test='param.fieldNameCn != "" or param.fieldNameCn != null '>FIELD_NAME_CN = #{param.fieldNameCn},</if>
+        <if test='param.fieldType != "" or param.fieldType != null '>FIELD_TYPE = #{param.fieldType},</if>
+        enabled = 1
+        where id = #{param.id}
+    </update>
+
+    <update id="delTable">
+        update tt_table_info
+        set del_flag = 1
+        where id = #{param.id}
+    </update>
+
+    <update id="delField">
+        update tt_field_info
+        set del_flag = 1
+        where id = #{param.id}
+    </update>
+
     <select id="list" resultType="com.hyji.tablemanager.module.table.pojo.Table">
         select *
         from tt_table_info
     </select>
+
     <resultMap id="BaseResultMap" type="com.hyji.tablemanager.module.table.pojo.Table">
         <id column="id" property="id" jdbcType="VARCHAR"/>
         <result column="tableName" property="tableName" jdbcType="VARCHAR"/>
@@ -33,6 +99,7 @@
             <result column="fieldType" property="fieldType"/>
         </collection>
     </resultMap>
+
     <select id="getTableDetailById" resultMap="BaseResultMap">
         select t.id            as id,
                t.TABLE_NAME    as tableName,
@@ -45,6 +112,39 @@
                  left join tt_field_info f on t.id = f.table_id
         where t.del_flag = 0
           and f.del_flag = 0
+    </select>
+
+    <resultMap id="recordMap" type="com.hyji.tablemanager.module.table.pojo.Record">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="tableId" property="tableId" jdbcType="VARCHAR"/>
+        <collection property="instanceList" javaType="java.util.ArrayList"
+                    ofType="com.hyji.tablemanager.module.table.pojo.Col">
+            <id column="recordId" property="recordId"/>
+            <result column="fieldId" property="fieldId"/>
+            <result column="instanceValue" property="instanceValue"/>
+        </collection>
+    </resultMap>
+
+    <select id="recordList" resultMap="recordMap">
+        select r.id,
+               t.id as tableId,
+               i.field_id as fieldId,
+               i.instance_value as instanceValue
+        from tt_reocrd r
+                 left join tt_table_info t on t.id = r.table_id
+                 left join tt_instance i on r.id = i.record_id
+        where t.id = #{param.tableId} and r.del_flag = 0 and t.dle_flag = 0
+    </select>
+
+    <select id="record" resultMap="recordMap">
+        select r.id,
+               t.id as tableId,
+               i.field_id as fieldId,
+               i.instance_value as instanceValue
+        from tt_reocrd r
+            left join tt_table_info t on t.id = r.table_id
+            left join tt_instance i on r.id = i.record_id
+        where r.id = #{param.recordId} and r.del_flag = 0 and t.dle_flag = 0
     </select>
 
 </mapper>

@@ -10,7 +10,7 @@ import java.util.Map;
  * @Description api response
  * @Author jhy
  * @Version: V1.0
- * @copyright Ailk NBS-Network Mgt. RD Dept.
+ * @copyright Ailk SSP-JS Jiangsu-CSS 1 Dept.
  * @since 2021/7/13
  */
 @Data
@@ -124,7 +124,7 @@ public class ApiResult implements Serializable {
     }
 
     public static ApiResult okMap(String key, Object value) {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>(16);
         map.put(key, value);
         return ok(map);
     }

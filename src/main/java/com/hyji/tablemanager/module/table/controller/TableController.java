@@ -14,7 +14,7 @@ import java.util.List;
  * @Description table api
  * @Author jhy
  * @Version: V1.0
- * @copyright Ailk NBS-Network Mgt. RD Dept.
+ * @copyright Ailk SSP-JS Jiangsu-CSS 1 Dept.
  * @since 2021/7/13
  */
 @RestController
@@ -28,14 +28,20 @@ public class TableController {
     }
 
     @RequestMapping("listTable")
-    public ApiResult list(PageInfo pageInfo, TableRequestParam param) {
+    public ApiResult listTable(PageInfo pageInfo, TableRequestParam param) {
         List<Table> tables = tableService.list(pageInfo, param);
         return ApiResult.ok(tables);
     }
 
     @RequestMapping("saveOrUpdateTable")
-    public ApiResult update(TableRequestParam param) {
-        int res = tableService.update(param);
+    public ApiResult saveOrUpdateTable(TableRequestParam param) {
+        int res = tableService.updateTable(param);
+        return ApiResult.ok(res > 0);
+    }
+
+    @RequestMapping("delTable")
+    public ApiResult delTable(int id) {
+        int res = tableService.delTable(id);
         return ApiResult.ok(res > 0);
     }
 
@@ -44,4 +50,37 @@ public class TableController {
         return ApiResult.ok(tableService.getTableDetailById(id));
     }
 
+    @RequestMapping("saveOrUpdateField")
+    public ApiResult saveOrUpdateField(TableRequestParam param) {
+        int res = tableService.updateField(param);
+        return ApiResult.ok(res > 0);
+    }
+
+    @RequestMapping("delField")
+    public ApiResult delField(int id) {
+        int res = tableService.delField(id);
+        return ApiResult.ok(res > 0);
+    }
+
+    @RequestMapping("recordList")
+    public ApiResult recordList(TableRequestParam param) {
+        return ApiResult.ok(tableService.recordList(param));
+    }
+
+    @RequestMapping("record")
+    public ApiResult record(TableRequestParam param) {
+        return ApiResult.ok(tableService.record(param));
+    }
+
+    @RequestMapping("saveOrUpdateRecord")
+    public ApiResult saveOrUpdateRecord(TableRequestParam param) {
+        int res = tableService.saveOrUpdateRecord(param);
+        return ApiResult.ok(res > 0);
+    }
+
+    @RequestMapping("delRecord")
+    public ApiResult delRecord(TableRequestParam param) {
+        int res = tableService.delRecord(param);
+        return ApiResult.ok(res > 0);
+    }
 }

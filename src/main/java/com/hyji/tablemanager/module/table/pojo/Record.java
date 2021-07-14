@@ -4,8 +4,10 @@ import com.hyji.tablemanager.common.BaseDao;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
- * @Description field info
+ * @Description a record info of table
  * @Author jhy
  * @Version: V1.0
  * @copyright Ailk SSP-JS Jiangsu-CSS 1 Dept.
@@ -13,10 +15,8 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class Field extends BaseDao {
+public class Record extends BaseDao {
     private int id;
-    private int tableId;
-    private String fieldName;
-    private String fieldNameCn;
-    private String fieldType;
+    private String tableId;
+    private List<Col> instanceList;
 }
