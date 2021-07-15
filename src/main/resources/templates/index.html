@@ -23,61 +23,72 @@
 
 <script type="text/html" id="barDemo">
     <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看字段信息</a>
-    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="instance">增加实例</a>
-<!--    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a>-->
-<!--    <a class="layui-btn layui-btn-xs" lay-event="more">更多 <i class="layui-icon layui-icon-down"></i></a>-->
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="addInstance">增加实例</a>
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="instance">查看实例表</a>
 </script>
-
-<!--<div class="layui-tab layui-tab-brief" lay-filter="demo">-->
-<!--    <ul class="layui-tab-title">-->
-<!--        <li class="layui-this">演示说明</li>-->
-<!--        <li>日期</li>-->
-<!--        <li>分页</li>-->
-<!--        <li>上传</li>-->
-<!--        <li>滑块</li>-->
-<!--    </ul>-->
-<!--    <div class="layui-tab-content">-->
-<!--        <div class="layui-tab-item layui-show">-->
-<!--            <div class="layui-carousel" id="test1">-->
-<!--                <div carousel-item>-->
-<!--                    <div><p class="layui-bg-green demo-carousel">在这里，你将以最直观的形式体验 layui！</p></div>-->
-<!--                    <div><p class="layui-bg-red demo-carousel">在编辑器中可以执行 layui 相关的一切代码</p></div>-->
-<!--                    <div><p class="layui-bg-blue demo-carousel">你也可以点击左侧导航针对性地试验我们提供的示例</p></div>-->
-<!--                    <div><p class="layui-bg-orange demo-carousel">如果最左侧的导航的高度超出了你的屏幕</p></div>-->
-<!--                    <div><p class="layui-bg-cyan demo-carousel">你可以将鼠标移入导航区域，然后滑动鼠标滚轮即可</p></div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--        <div class="layui-tab-item">-->
-<!--            <div id="laydateDemo"></div>-->
-<!--        </div>-->
-<!--        <div class="layui-tab-item">-->
-<!--            <div id="pageDemo"></div>-->
-<!--        </div>-->
-<!--        <div class="layui-tab-item">-->
-<!--            <div class="layui-upload-drag" id="uploadDemo">-->
-<!--                <i class="layui-icon"></i>-->
-<!--                <p>点击上传，或将文件拖拽到此处</p>-->
-<!--                <div class="layui-hide" id="uploadDemoView">-->
-<!--                    <hr>-->
-<!--                    <img src="" alt="上传成功后渲染" style="max-width: 100%">-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--        <div class="layui-tab-item">-->
-<!--            <div id="sliderDemo" style="margin: 50px 20px;"></div>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</div>-->
-
-<!--<blockquote class="layui-elem-quote layui-hide layui-text" id="footer">当前版本：layui v{{ layui.v }}</blockquote>-->
-
-
+<script type="text/html" id="fieldBar">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a>
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="delete">删除</a>
+</script>
+</body>
+<div id="field_table_div" style="display: none">
+    <table class="layui-hide" id="field" lay-filter="tool"></table>
+</div>
+<div id="table_form_div" style="display: none">
+    <form class="layui-form" id="table_form"></form>
+</div>
+<div id="field_form_div" style="display: none">
+    <form class="layui-form" id="field_form"></form>
+</div>
 <script src="static/layui.js"></script>
+<script src="static/jquery-1.9.1.min.js"></script>
 <script>
     // layui.config({
     //     version: '1623988781494' //为了更新 js 缓存，可忽略
     // });
+
+    /**
+     * 定义原生使用占位符的方法，格式化数据
+     * @author sky
+     * @date 2018-07-09
+     * @returns {*}
+     */
+    String.prototype.format=function()
+    {
+        if(arguments.length==0) return this;
+        for(var s=this, i=0; i<arguments.length; i++)
+            s=s.replace(new RegExp("\\{"+i+"\\}","g"), arguments[i]);
+        return s;
+    };
+
+    function initFieldForm(id) {
+        let f = $('#field_form')
+        $.ajax({
+            type: "post",
+            url: "/table/tableDetail",
+            data: {id: id},
+            success: function (data) {
+                let arr, i, len;
+                if (data.code === 200) {
+                    arr = data.data.fields
+                    for (i = 0, len = arr.length; i < len; i++) {
+                        let t = "<div className='layui-form-item'>" +
+                            "<label className='layui-form-label'>{0}</label>" +
+                            "<div className='layui-input-block'>" +
+                            "<input type='text' name='{1}' lay-verify='title' autoComplete='off' placeholder='请输入{2}' className='layui-input'>" +
+                            "</div>" +
+                            "</div>"
+                        let tmpInput = $(t.format(arr[i].fieldNameCn, arr[i].fieldName, arr[i].fieldNameCn));
+                        // tmpInput.attr("value", );
+                        f.append(tmpInput)
+                    }
+                    f.render();
+                } else {
+                    layer.msg("加载失败")
+                }
+            }
+        })
+    }
 
     //加载模块
     layui.use(function () { //亦可加载特定模块：layui.use(['layer', 'laydate', function(){
@@ -92,17 +103,8 @@
             , slider = layui.slider //滑块
             , dropdown = layui.dropdown //下拉菜单
 
-        //向世界问个好
-        // layer.msg('Hello World');
 
-        //监听Tab切换
-        element.on('tab(demo)', function (data) {
-            layer.tips('切换了 ' + data.index + '：' + this.innerHTML, this, {
-                tips: 1
-            });
-        });
-
-        //执行一个 table 实例
+        //table
         table.render({
             elem: '#demo'
             , height: 'full'
@@ -111,9 +113,9 @@
             , page: false //开启分页
             , toolbar: 'default' //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
             , totalRow: false //开启合计行
-            , parseData: function(res){
+            , parseData: function (res) {
                 return {
-                    "code": res.code === 200? 0: 1, //解析接口状态
+                    "code": res.code === 200 ? 0 : 1, //解析接口状态
                     "msg": res.msg, //解析提示文本
                     "count": res.data.count, //解析数据长度
                     "data": res.data //解析数据列表
@@ -121,12 +123,12 @@
             }
             , cols: [
                 [ //表头
-                {type: 'checkbox', fixed: 'left'}
-                , {field: 'id', title: 'ID', width: '20%', sort: true, fixed: 'left', totalRowText: '合计：'}
-                , {field: 'tableName', title: '表名', width: '30%'}
-                , {field: 'tableNameCn', title: '表中文名', width: '30%', sort: true, totalRow: true}
-                , {fixed: 'right', title: '操作', width: '20%', align: 'center', toolbar: '#barDemo'}
-            ]]
+                    {type: 'checkbox', fixed: 'left'}
+                    , {field: 'id', title: 'ID', width: '20%', sort: true, fixed: 'left', totalRowText: '合计：'}
+                    , {field: 'tableName', title: '表名', width: '30%'}
+                    , {field: 'tableNameCn', title: '表中文名', width: '30%', sort: true, totalRow: true}
+                    , {fixed: 'right', title: '操作', width: '20%', align: 'center', toolbar: '#barDemo'}
+                ]]
         });
 
         //监听头工具栏事件
@@ -135,7 +137,6 @@
                 , data = checkStatus.data; //获取选中的数据
             switch (obj.event) {
                 case 'add':
-                    layer.msg('添加');
                     break;
                 case 'update':
                     if (data.length === 0) {
@@ -161,111 +162,73 @@
             var data = obj.data //获得当前行数据
                 , layEvent = obj.event; //获得 lay-event 对应的值
             if (layEvent === 'detail') {
+                $('#field_table_div').show()
                 layer.open({
                     type: 1,
-                    content: $('#id')
-                })
-            } else if (layEvent === 'more') {
-                //下拉菜单
-                dropdown.render({
-                    elem: this //触发事件的 DOM 对象
-                    , show: true //外部事件触发即显示
-                    , data: [{
-                        title: '编辑'
-                        , id: 'edit'
-                    }, {
-                        title: '删除'
-                        , id: 'del'
-                    }]
-                    , click: function (menudata) {
-                        if (menudata.id === 'del') {
-                            layer.confirm('真的删除行么', function (index) {
-                                obj.del(); //删除对应行（tr）的DOM结构
-                                layer.close(index);
-                                //向服务端发送删除指令
-                            });
-                        } else if (menudata.id === 'edit') {
-                            layer.msg('编辑操作，当前行 ID:' + data.id);
-                        }
+                    content: $('#field'),
+                    area: ['1000px', '700px'], //宽高
+                    btn1: function (index) {
+                        layer.close(index);
+                        window.location.reload();
+                    },
+                    success: function (layernow, index) {
+                        table.render({
+                            elem: '#field'
+                            , height: 'full'
+                            , url: '/table/tableDetail/' //数据接口
+                            , where: {
+                                id: data.id
+                            }
+                            , area: ['700px', '600px'] //宽高
+                            , title: '自定义表格字段'
+                            , page: false //开启分页
+                            , toolbar: 'default' //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+                            , totalRow: false //开启合计行
+                            , parseData: function (res) {
+                                return {
+                                    "code": res.code === 200 ? 0 : 1, //解析接口状态
+                                    "msg": res.msg, //解析提示文本
+                                    "count": res.data === null ? 0 : res.data.count, //解析数据长度
+                                    "data": res.data.fields //解析数据列表
+                                };
+                            }
+                            , cols: [
+                                [ //表头
+                                    {type: 'checkbox', fixed: 'left'}
+                                    , {field: 'id', title: 'ID', width: '10%', sort: true, fixed: 'left', totalRowText: '合计：'}
+                                    , {field: 'fieldName', title: '字段名', width: '10%', sort: true, totalRow: true}
+                                    , {field: 'fieldNameCn', title: '字段中文名', width: '20%', sort: true, totalRow: true}
+                                    , {field: 'fieldType', title: '字段类型', width: '15%', sort: true, totalRow: true}
+                                    , {fixed: 'right', title: '操作', width: '45%', align: 'center', toolbar: '#fieldBar'}
+                                ]]
+                        });
+                    },
+                    end: function () {
+                        $('#field_table_div').hide()
+                        window.location.reload();
                     }
-                    , align: 'right' //右对齐弹出（v2.6.8 新增）
-                    , style: 'box-shadow: 1px 1px 10px rgb(0 0 0 / 12%);' //设置额外样式
+                })
+            } else if (layEvent === 'addInstance') {
+                $('#field_form_div').show()
+                initFieldForm(data.id)
+                layer.open({
+                    type: 1,
+                    content: $('#field_form_div'),
+                    area: ['800px', '700px'], //宽高
+                    btn1: function (index) {
+                        layer.close(index);
+                        window.location.reload();
+                    },
+                    success: function (layernow, index) {
+                    },
+                    end: function () {
+                        $('#field_form_div').hide()
+                        window.location.reload();
+                    }
                 })
             }
         });
 
-        //执行一个轮播实例
-        carousel.render({
-            elem: '#test1'
-            , width: '100%' //设置容器宽度
-            , height: 200
-            , arrow: 'none' //不显示箭头
-            , anim: 'fade' //切换动画方式
-        });
-
-        //将日期直接嵌套在指定容器中
-        var dateIns = laydate.render({
-            elem: '#laydateDemo'
-            , position: 'static'
-            , calendar: true //是否开启公历重要节日
-            , mark: { //标记重要日子
-                '0-10-14': '生日'
-                , '2020-01-18': '小年'
-                , '2020-01-24': '除夕'
-                , '2020-01-25': '春节'
-                , '2020-02-01': '上班'
-            }
-            , done: function (value, date, endDate) {
-                if (date.year == 2017 && date.month == 11 && date.date == 30) {
-                    dateIns.hint('一不小心就月底了呢');
-                }
-            }
-            , change: function (value, date, endDate) {
-                layer.msg(value)
-            }
-        });
-
-        //分页
-        laypage.render({
-            elem: 'pageDemo' //分页容器的id
-            , count: 1000 //数据总数
-            , limit: 10 //每页显示的数据条数
-            , skin: '#1E9FFF' //自定义选中色值
-            //,layout: ['prev', 'page', 'next', 'count', 'limit', 'refresh', 'skip'] //自定义排版
-            , jump: function (obj, first) {
-                if (!first) {
-                    layer.msg('第' + obj.curr + '页', {offset: 'b'});
-                }
-            }
-        });
-
-        //上传
-        upload.render({
-            elem: '#uploadDemo'
-            , url: 'https://httpbin.org/post' //改成您自己的上传接口
-            , done: function (res) {
-                layer.msg('上传成功');
-                layui.$('#uploadDemoView').removeClass('layui-hide').find('img').attr('src', res.files.file);
-                console.log(res)
-            }
-            , before: function () {
-                layer.msg('上传中', {icon: 16, time: 0});
-            }
-        });
-
-        //滑块
-        var sliderInst = slider.render({
-            elem: '#sliderDemo'
-            , input: true //输入框
-        });
-
-        //底部信息
-        var footerTpl = lay('#footer')[0].innerHTML;
-        lay('#footer').html(layui.laytpl(footerTpl).render({}))
-            .removeClass('layui-hide');
     });
 </script>
-</body>
-<table class="layui-hide" id="field" lay-filter="tool"></table>
-
 </html>
