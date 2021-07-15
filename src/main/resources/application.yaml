@@ -9,6 +9,9 @@ spring:
   thymeleaf:
     check-template: false
     check-template-location: false
+    cache: false
+  mvc:
+    static-path-pattern: /static/**
 
 mybatis:
   mapper-locations: classpath:mapping/*Mapper.xml
