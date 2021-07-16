@@ -10,7 +10,7 @@ import lombok.Data;
  * @since 2021/7/14
  */
 @Data
-public class BaseDao {
+public class BasePojo {
     private String createBy;
     private int createTime;
     private String updateBy;

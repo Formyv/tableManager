@@ -1,8 +1,10 @@
 package com.hyji.tablemanager.module.table.pojo;
 
-import com.hyji.tablemanager.common.BaseDao;
+import com.hyji.tablemanager.common.BasePojo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 /**
  * @Description field info
@@ -13,10 +15,11 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class Field extends BaseDao {
+public class Field extends BasePojo {
     private int id;
     private int tableId;
     private String fieldName;
     private String fieldNameCn;
     private String fieldType;
+    private List<Dict> dictList;
 }

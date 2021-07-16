@@ -1,6 +1,6 @@
 package com.hyji.tablemanager.module.table.pojo;
 
-import com.hyji.tablemanager.common.BaseDao;
+import com.hyji.tablemanager.common.BasePojo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -15,7 +15,7 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class Record extends BaseDao {
+public class Record extends BasePojo {
     private int id;
     private String tableId;
     private List<Col> instanceList;

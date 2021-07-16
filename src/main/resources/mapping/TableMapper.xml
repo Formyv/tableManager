@@ -25,7 +25,9 @@
     </update>
 
     <delete id="delCols">
-        DELETE FROM TT_INSTANCE WHERE RECORD_ID = #{param.recordId}
+        DELETE
+        FROM TT_INSTANCE
+        WHERE RECORD_ID = #{param.recordId}
     </delete>
 
     <insert id="insertField">
@@ -84,7 +86,8 @@
 
     <select id="list" resultType="com.hyji.tablemanager.module.table.pojo.Table">
         select id, table_name as tableName, table_name_cn as tableNameCn
-        from tt_table_info where del_flag = 0
+        from tt_table_info
+        where del_flag = 0
     </select>
 
     <resultMap id="BaseResultMap" type="com.hyji.tablemanager.module.table.pojo.Table">
@@ -97,6 +100,13 @@
             <result column="fieldName" property="fieldName"/>
             <result column="fieldNameCn" property="fieldNameCn"/>
             <result column="fieldType" property="fieldType"/>
+            <collection property="dictList" javaType="java.util.ArrayList"
+                        ofType="com.hyji.tablemanager.module.table.pojo.Dict">
+                <id column="did" property="id"/>
+                <result column="dictType" property="dictType"/>
+                <result column="dictKey" property="dictKey"/>
+                <result column="dictValue" property="dictValue"/>
+            </collection>
         </collection>
     </resultMap>
 
@@ -107,11 +117,19 @@
                f.id            as fid,
                f.FIELD_NAME    as fieldName,
                f.FIELD_NAME_CN as fieldNameCn,
-               f.FIELD_TYPE    as fieldType
+               f.FIELD_TYPE    as fieldType,
+               d.id            as did,
+               d.dict_type     as dictType,
+               d.dict_key      as dictKey,
+               d.dict_value    as dictValue
         from tt_table_info t
                  left join tt_field_info f on t.id = f.table_id
+            and f.del_flag = 0
+                 left join tt_dict d on d.dict_type = f.field_type
+            and d.del_flag = 0
         where t.del_flag = 0
-          and f.del_flag = 0
+          and t.id = #{id}
+        order by f.id, d.id
     </select>
 
     <resultMap id="recordMap" type="com.hyji.tablemanager.module.table.pojo.Record">
@@ -127,24 +145,28 @@
 
     <select id="recordList" resultMap="recordMap">
         select r.id,
-               t.id as tableId,
-               i.field_id as fieldId,
+               t.id             as tableId,
+               i.field_id       as fieldId,
                i.instance_value as instanceValue
         from tt_reocrd r
                  left join tt_table_info t on t.id = r.table_id
                  left join tt_instance i on r.id = i.record_id
-        where t.id = #{param.tableId} and r.del_flag = 0 and t.dle_flag = 0
+        where t.id = #{param.tableId}
+          and r.del_flag = 0
+          and t.dle_flag = 0
     </select>
 
     <select id="record" resultMap="recordMap">
         select r.id,
-               t.id as tableId,
-               i.field_id as fieldId,
+               t.id             as tableId,
+               i.field_id       as fieldId,
                i.instance_value as instanceValue
         from tt_reocrd r
-            left join tt_table_info t on t.id = r.table_id
-            left join tt_instance i on r.id = i.record_id
-        where r.id = #{param.recordId} and r.del_flag = 0 and t.dle_flag = 0
+                 left join tt_table_info t on t.id = r.table_id
+                 left join tt_instance i on r.id = i.record_id
+        where r.id = #{param.recordId}
+          and r.del_flag = 0
+          and t.dle_flag = 0
     </select>
 
 </mapper>

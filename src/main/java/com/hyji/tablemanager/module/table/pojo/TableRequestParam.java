@@ -1,6 +1,6 @@
 package com.hyji.tablemanager.module.table.pojo;
 
-import com.hyji.tablemanager.common.BaseDao;
+import com.hyji.tablemanager.common.BasePojo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class TableRequestParam extends BaseDao {
+public class TableRequestParam extends BasePojo {
     private Integer id;
     private Integer tableId;
     private Integer fieldId;

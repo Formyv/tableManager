@@ -5,16 +5,17 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * @Description col of record
+ * @Description dict pojo
  * @Author jhy
  * @Version: V1.0
  * @copyright Ailk SSP-JS Jiangsu-CSS 1 Dept.
- * @since 2021/7/13
+ * @since 2021/7/16
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class Col extends BasePojo {
-    private int recordId;
-    private String fieldId;
-    private String instanceValue;
+public class Dict extends BasePojo {
+    private int id;
+    private String dictType;
+    private String dictKey;
+    private String dictValue;
 }
