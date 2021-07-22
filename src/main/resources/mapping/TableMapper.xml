@@ -35,7 +35,7 @@
             select nvl(max(id),0)+1 from TT_FIELD_INFO
         </selectKey>
         insert into TT_FIELD_INFO (ID, TABLE_ID, FIELD_NAME, FIELD_NAME_CN, FIELD_TYPE, ENABLED, DEL_FLAG)
-        values (#{id}, #{param.tableId}, #{param.fieldName}, #{param.fieldNameCn}, #{param.fieldType}, 1, 0);
+        values (#{id}, #{param.tableId}, #{param.fieldName}, #{param.fieldNameCn}, #{param.fieldType}, 1, 0)
     </insert>
 
     <insert id="insertRecord" useGeneratedKeys="true">
@@ -43,7 +43,7 @@
             SELECT NVL(MAX(ID),0)+1 FROM TT_RECORD
         </selectKey>
         INSERT INTO TT_RECORD (ID, TABLE_ID, ENABLED, DEL_FLAG)
-        VALUES (#{id}, #{param.tableId}, 1, 0);
+        VALUES (#{id}, #{param.tableId}, 1, 0)
     </insert>
 
     <insert id="insertCols">
@@ -167,6 +167,12 @@
         where r.id = #{param.recordId}
           and r.del_flag = 0
           and t.dle_flag = 0
+    </select>
+
+    <select id="getFieldsByTableId" resultType="com.hyji.tablemanager.module.table.pojo.Field">
+        select *
+        from tt_field_info
+        where table_id = #{tableId}
     </select>
 
 </mapper>

@@ -65,6 +65,16 @@
         return s;
     };
 
+    function getField(sel) {
+        let params = $(sel).serializeArray();
+        let values = {};
+        for (let item in params) {
+            values[params[item].name] = params[item].value;
+        }
+        let data = JSON.stringify(values)
+        return data;
+    }
+
     //加载模块
     layui.use(function () { //亦可加载特定模块：layui.use(['layer', 'laydate', function(){
         //得到各种内置组件
@@ -235,10 +245,20 @@
                     area: ['800px', '700px'], //宽高
                     btn: ['提交', '关闭'], //只是为了演示
                     btn1: function (index) {
-                        layer.close(index);
-                        window.location.reload();
+                        $.ajax({
+                            type: "post",
+                            url: "/table/saveOrUpdateRecord",
+                            data: {
+                                tableId: data.id,
+                                data: getField('#field_form')
+                            },
+                            success: function (data) {
+                            }
+                        })
                     },
-                    success: function (layernow, index) {
+                    btn2: function (layernow, index) {
+                        $('#field_form_div').hide()
+                        window.location.reload();
                     },
                     end: function () {
                         $('#field_form_div').hide()

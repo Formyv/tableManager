@@ -1,10 +1,7 @@
 package com.hyji.tablemanager.module.table.dao;
 
 import com.hyji.tablemanager.common.PageInfo;
-import com.hyji.tablemanager.module.table.pojo.Col;
-import com.hyji.tablemanager.module.table.pojo.Record;
-import com.hyji.tablemanager.module.table.pojo.Table;
-import com.hyji.tablemanager.module.table.pojo.TableRequestParam;
+import com.hyji.tablemanager.module.table.pojo.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -97,7 +94,7 @@ public interface TableMapper {
      * @param param param
      * @return effect rows
      **/
-    int insertRecord(TableRequestParam param);
+    int insertRecord(@Param("param") TableRequestParam param);
 
     //    int updateRecord(TableRequestParam param);
 
@@ -114,7 +111,7 @@ public interface TableMapper {
      * @param cols
      * @return effect rows
      **/
-    int insertCols(TableRequestParam param, List<Col> cols);
+    int insertCols(@Param("param") TableRequestParam param, @Param("list") List<Col> cols);
 
     /**
      * desc: delete col of instance
@@ -122,4 +119,11 @@ public interface TableMapper {
      * @return effect rows
     **/
     int delCols(TableRequestParam param);
+
+    /**
+     * desc: get fields by table id
+     * @param tableId table id
+     * @return fields
+    **/
+    List<Field> getFieldsByTableId(Integer tableId);
 }

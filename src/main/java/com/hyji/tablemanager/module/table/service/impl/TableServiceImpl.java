@@ -1,17 +1,18 @@
 package com.hyji.tablemanager.module.table.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.hyji.tablemanager.common.PageInfo;
 import com.hyji.tablemanager.module.table.dao.TableMapper;
-import com.hyji.tablemanager.module.table.pojo.Col;
-import com.hyji.tablemanager.module.table.pojo.Record;
-import com.hyji.tablemanager.module.table.pojo.Table;
-import com.hyji.tablemanager.module.table.pojo.TableRequestParam;
+import com.hyji.tablemanager.module.table.pojo.*;
 import com.hyji.tablemanager.module.table.service.TableService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Description table service impl
@@ -85,8 +86,17 @@ public class TableServiceImpl implements TableService {
     @Transactional(rollbackFor = Exception.class)
     public int saveOrUpdateRecord(TableRequestParam param) {
         String data = param.getData();
-        JSONArray json = JSONArray.parseArray(data);
-        List<Col> cols = json.toJavaList(Col.class);
+        Integer tableId = param.getTableId();
+        List<Field> fields = tableMapper.getFieldsByTableId(tableId);
+        Map<String, Integer> fieldMap = fields.stream().collect(Collectors.toMap(Field::getFieldName, Field::getId));
+        JSONObject json = JSONObject.parseObject(data);
+        List<Col> cols = new ArrayList<>();
+        for (Map.Entry<String, Object> entry : json.entrySet()) {
+            Col col = new Col();
+            col.setFieldId(String.valueOf(fieldMap.get(entry.getKey())));
+            col.setInstanceValue(String.valueOf(entry.getValue()));
+            cols.add(col);
+        }
         if (param.getRecordId() == null) {
             tableMapper.insertRecord(param);
         } else {
