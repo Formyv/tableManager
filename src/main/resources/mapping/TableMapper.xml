@@ -38,12 +38,9 @@
         values (#{id}, #{param.tableId}, #{param.fieldName}, #{param.fieldNameCn}, #{param.fieldType}, 1, 0)
     </insert>
 
-    <insert id="insertRecord" useGeneratedKeys="true">
-        <selectKey keyProperty="id" resultType="int" order="BEFORE">
-            SELECT NVL(MAX(ID),0)+1 FROM TT_RECORD
-        </selectKey>
+    <insert id="insertRecord">
         INSERT INTO TT_RECORD (ID, TABLE_ID, ENABLED, DEL_FLAG)
-        VALUES (#{id}, #{param.tableId}, 1, 0)
+        VALUES (#{param.id}, #{param.tableId}, 1, 0)
     </insert>
 
     <insert id="insertCols">
@@ -139,6 +136,7 @@
                     ofType="com.hyji.tablemanager.module.table.pojo.Col">
             <id column="recordId" property="recordId"/>
             <result column="fieldId" property="fieldId"/>
+            <result column="fieldName" property="fieldName"/>
             <result column="instanceValue" property="instanceValue"/>
         </collection>
     </resultMap>
@@ -147,13 +145,15 @@
         select r.id,
                t.id             as tableId,
                i.field_id       as fieldId,
+               f.field_name      as fieldName,
                i.instance_value as instanceValue
-        from tt_reocrd r
+        from tt_record r
                  left join tt_table_info t on t.id = r.table_id
                  left join tt_instance i on r.id = i.record_id
+                 left join tt_field_info f on i.field_id = f.id
         where t.id = #{param.tableId}
           and r.del_flag = 0
-          and t.dle_flag = 0
+          and t.del_flag = 0
     </select>
 
     <select id="record" resultMap="recordMap">
@@ -173,6 +173,10 @@
         select *
         from tt_field_info
         where table_id = #{tableId}
+    </select>
+    <select id="getMaxRecordId" resultType="java.lang.Integer">
+        SELECT NVL(MAX(ID), 0) + 1
+        FROM TT_RECORD
     </select>
 
 </mapper>

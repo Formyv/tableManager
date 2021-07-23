@@ -80,7 +80,7 @@ public interface TableMapper {
      * @param param param
      * @return table instance list
      **/
-    List<Record> recordList(TableRequestParam param);
+    List<Record> recordList(@Param("param") TableRequestParam param);
 
     /**
      * desc: get instance
@@ -126,4 +126,11 @@ public interface TableMapper {
      * @return fields
     **/
     List<Field> getFieldsByTableId(Integer tableId);
+
+    /**
+     * desc: get max id of the record
+     * @param param param
+     * @return max id
+    **/
+    Integer getMaxRecordId(TableRequestParam param);
 }

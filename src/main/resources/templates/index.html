@@ -36,6 +36,9 @@
     <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="delete">删除</a>
 </script>
 </body>
+<div id="instance_table_div" style="display: none">
+    <table class="layui-hide" id="instance" lay-filter="tool"></table>
+</div>
 <div id="field_table_div" style="display: none">
     <table class="layui-hide" id="field" lay-filter="tool"></table>
 </div>
@@ -73,6 +76,27 @@
         }
         let data = JSON.stringify(values)
         return data;
+    }
+
+    function getCols(id) {
+        let res = []
+        res[0] = []
+        res[0][0] = {type: 'checkbox', fixed: 'left'};
+        let arr
+        $.ajax({
+            type: "post",
+            url: "/table/tableDetail",
+            data: {id: id},
+            success: function (data) {
+                // {field: 'id', title: 'ID', width: '10%', sort: true, fixed: 'left', totalRowText: '合计：'}
+                console.info(data)
+                arr = data.data.fields
+                for (let i = 0; i < arr.length; i++) {
+                    res[0][i+1] = {field: arr[i].fieldName, title: arr[i].fieldNameCn}
+                }
+            }
+        })
+        return res;
     }
 
     //加载模块
@@ -262,6 +286,46 @@
                     },
                     end: function () {
                         $('#field_form_div').hide()
+                        window.location.reload();
+                    }
+                })
+            }else if (layEvent === 'instance') {
+                $('#instance_table_div').show()
+                let cols=getCols(data.id)
+                layer.open({
+                    type: 1,
+                    content: $('#instance'),
+                    area: ['1000px', '700px'], //宽高
+                    btn1: function (index) {
+                        layer.close(index);
+                        window.location.reload();
+                    },
+                    success: function (layernow, index) {
+                        table.render({
+                            elem: '#instance'
+                            , height: 'full'
+                            , url: '/table/recordList/' //数据接口
+                            , where: {
+                                tableId: data.id
+                            }
+                            , area: ['700px', '600px'] //宽高
+                            , title: '自定义实例表格'
+                            , page: false //开启分页
+                            , toolbar: 'default' //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+                            , totalRow: false //开启合计行
+                            , parseData: function (res) {
+                                return {
+                                    "code": res.code === 200 ? 0 : 1, //解析接口状态
+                                    "msg": res.msg, //解析提示文本
+                                    "count": res.data === null ? 0 : res.data.count, //解析数据长度
+                                    "data": res.data //解析数据列表
+                                };
+                            }
+                            , cols: cols
+                        });
+                    },
+                    end: function () {
+                        $('#field_table_div').hide()
                         window.location.reload();
                     }
                 })

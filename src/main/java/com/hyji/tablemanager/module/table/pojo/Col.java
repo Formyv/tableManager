@@ -16,5 +16,6 @@ import lombok.EqualsAndHashCode;
 public class Col extends BasePojo {
     private int recordId;
     private String fieldId;
+    private String fieldName;
     private String instanceValue;
 }

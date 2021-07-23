@@ -73,8 +73,18 @@ public class TableServiceImpl implements TableService {
     }
 
     @Override
-    public List<Record> recordList(TableRequestParam param) {
-        return tableMapper.recordList(param);
+    public List<JSONObject> recordList(TableRequestParam param) {
+        List<Record> records = tableMapper.recordList(param);
+        List<JSONObject> res = records.stream().map(e -> {
+            List<Col> instanceList = e.getInstanceList();
+            JSONObject temp = new JSONObject();
+            temp.put("id", e.getId());
+            for (Col col : instanceList) {
+                temp.put(col.getFieldName(), col.getInstanceValue());
+            }
+            return temp;
+        }).collect(Collectors.toList());
+        return res;
     }
 
     @Override
@@ -98,6 +108,8 @@ public class TableServiceImpl implements TableService {
             cols.add(col);
         }
         if (param.getRecordId() == null) {
+//            oracle里的自增主键不太好用，临时方法，并发少先不管
+            param.setId(tableMapper.getMaxRecordId(param));
             tableMapper.insertRecord(param);
         } else {
             tableMapper.delCols(param);

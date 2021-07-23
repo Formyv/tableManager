@@ -1,5 +1,6 @@
 package com.hyji.tablemanager.module.table.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.hyji.tablemanager.common.PageInfo;
 import com.hyji.tablemanager.module.table.pojo.Record;
 import com.hyji.tablemanager.module.table.pojo.Table;
@@ -70,7 +71,7 @@ public interface TableService {
      * @param param param
      * @return table instance list
      **/
-    List<Record> recordList(TableRequestParam param);
+    List<JSONObject> recordList(TableRequestParam param);
 
     /**
      * desc: get instance
