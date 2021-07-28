@@ -87,7 +87,7 @@ public interface TableMapper {
      * @param param param
      * @return instance
      **/
-    Record record(TableRequestParam param);
+    List<Col> record(@Param("param") TableRequestParam param);
 
     /**
      * desc: save or update instance
@@ -103,7 +103,7 @@ public interface TableMapper {
      * @param param param
      * @return effect rows
      **/
-    int delRecord(TableRequestParam param);
+    int delRecord(@Param("param") TableRequestParam param);
 
     /**
      * desc: save or update instance

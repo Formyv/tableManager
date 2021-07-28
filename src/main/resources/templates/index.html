@@ -24,7 +24,7 @@
 </head>
 <body>
 
-<table class="layui-hide" id="demo" lay-filter="tool"></table>
+<table class="layui-hide" id="demo" lay-filter="tableMangerTool"></table>
 
 <script type="text/html" id="barDemo">
     <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看字段信息</a>
@@ -32,15 +32,18 @@
     <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="instance">查看实例表</a>
 </script>
 <script type="text/html" id="fieldBar">
-    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a>
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="delete">删除</a>
+</script>
+<script type="text/html" id="updateFieldBar">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="update">更新</a>
     <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="delete">删除</a>
 </script>
 </body>
 <div id="instance_table_div" style="display: none">
-    <table class="layui-hide" id="instance" lay-filter="tool"></table>
+    <table class="layui-hide" id="instance" lay-filter="instanceTool"></table>
 </div>
 <div id="field_table_div" style="display: none">
-    <table class="layui-hide" id="field" lay-filter="tool"></table>
+    <table class="layui-hide" id="field" lay-filter="tableTool"></table>
 </div>
 <div id="table_form_div" style="display: none">
     <form class="layui-form" id="table_form"></form>
@@ -78,7 +81,7 @@
         return data;
     }
 
-    function getCols(id) {
+    function showInsTable(table, id) {
         let res = []
         res[0] = []
         res[0][0] = {type: 'checkbox', fixed: 'left'};
@@ -88,15 +91,89 @@
             url: "/table/tableDetail",
             data: {id: id},
             success: function (data) {
-                // {field: 'id', title: 'ID', width: '10%', sort: true, fixed: 'left', totalRowText: '合计：'}
-                console.info(data)
                 arr = data.data.fields
-                for (let i = 0; i < arr.length; i++) {
-                    res[0][i+1] = {field: arr[i].fieldName, title: arr[i].fieldNameCn}
+                let i = 0
+                for (; i < arr.length; i++) {
+                    res[0][i + 1] = {field: arr[i].fieldName, title: arr[i].fieldNameCn}
                 }
+                res[0][i + 1] = {fixed: 'right', title: '操作', width: '20%', align: 'center', toolbar: '#updateFieldBar'}
+                layer.open({
+                    type: 1,
+                    content: $('#instance'),
+                    area: ['1000px', '700px'], //宽高
+                    btn1: function (index) {
+                        layer.close(index);
+                        window.location.reload();
+                    },
+                    success: function (layernow, index) {
+                        table.render({
+                            elem: '#instance'
+                            , height: 'full'
+                            , url: '/table/recordList/' //数据接口
+                            , where: {
+                                tableId: id
+                            }
+                            , area: ['700px', '600px'] //宽高
+                            , title: '自定义实例表格'
+                            , page: false //开启分页
+                            , toolbar: 'default' //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+                            , totalRow: false //开启合计行
+                            , parseData: function (res) {
+                                return {
+                                    "code": res.code === 200 ? 0 : 1, //解析接口状态
+                                    "msg": res.msg, //解析提示文本
+                                    "count": res.data === null ? 0 : res.data.count, //解析数据长度
+                                    "data": res.data //解析数据列表
+                                };
+                            }
+                            , cols: res
+                        });
+                    },
+                    end: function () {
+                        $('#instance_table_div').hide()
+                        window.location.reload();
+                    }
+                })
+
             }
         })
         return res;
+    }
+
+    function initUpdateFieldForm(recordId, record) {
+        // todo
+        let f = $('#field_form')
+        let arr, i, len, len2;
+        if (record.code === 200) {
+            arr = record.data
+            for (i = 0, len = arr.length; i < len; i++) {
+                if (arr[i].fieldType === "string") {
+                    let t = "<div class='layui-form-item'>" +
+                        "<label class='layui-form-label'>{0}</label>" +
+                        "<div class='layui-input-block'>" +
+                        "<input type='text' name='{1}' lay-verify='title' autoComplete='off' placeholder='请输入{2}' class='layui-input'>" +
+                        "</div>" +
+                        "</div>"
+                    let tmpInput = $(t.format(arr[i].fieldNameCn, arr[i].fieldName, arr[i].fieldNameCn));
+                    f.append(tmpInput)
+                } else {
+                    let t = "<div class='layui-form-item'>" +
+                        "<label class='layui-form-label'>{0}</label>" +
+                        "<div class='layui-input-block'>" +
+                        "<select name='{1}' class='layui-input'>"
+                    for (j = 0, len2 = arr[i].dictList.length; j < len2; j++) {
+                        t += "<option value='{0}'>{1}</option>".format(arr[i].dictList[j].dictKey, arr[i].dictList[j].dictValue)
+                    }
+                    t += "</select>" +
+                        "</div>" +
+                        "</div>"
+                    let tmpInput = $(t.format(arr[i].fieldNameCn, arr[i].fieldName, arr[i].fieldNameCn));
+                    f.append(tmpInput)
+                }
+            }
+        } else {
+            layer.msg("加载失败")
+        }
     }
 
     //加载模块
@@ -209,8 +286,70 @@
             }
         });
 
+
+        table.on('tool(instanceTool)', function (obj) {
+            var data = obj.data //获得当前行数据
+                , layEvent = obj.event; //获得 lay-event 对应的值
+            if (layEvent === 'delete') {
+                $.ajax({
+                    type: "post",
+                    url: "/table/delRecord",
+                    data: {recordId: data.id},
+                    success: function (data) {
+                        window.location.reload();
+                    }
+                });
+            } else {
+                $.ajax({
+                    type: "post",
+                    url: "/table/record",
+                    data: {recordId: data.id},
+                    success: function (res) {
+                        console.info(res);
+                        $('#field_form_div').show()
+                        initUpdateFieldForm(data.id, res)
+                        layer.open({
+                            type: 1,
+                            content: $('#field_form_div'),
+                            area: ['800px', '700px'], //宽高
+                            btn: ['提交', '关闭'], //只是为了演示
+                            btn1: function (index) {
+                                $.ajax({
+                                    type: "post",
+                                    url: "/table/saveOrUpdateRecord",
+                                    data: {
+                                        tableId: data.id,
+                                        data: getField('#field_form')
+                                    },
+                                    success: function (data) {
+                                        window.location.reload();
+                                    }
+                                })
+                            },
+                            btn2: function (layernow, index) {
+                                $('#field_form_div').hide()
+                                window.location.reload();
+                            },
+                            end: function () {
+                                $('#field_form_div').hide()
+                                window.location.reload();
+                            }
+                        })
+                    }
+                })
+            }
+        });
+
+        table.on('tool(tableTool)', function (obj) {
+            var data = obj.data //获得当前行数据
+                , layEvent = obj.event; //获得 lay-event 对应的值
+            if (layEvent === 'delete') {
+                alert("del the field todo");
+            }
+        });
+
         //监听行工具事件
-        table.on('tool(tool)', function (obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+        table.on('tool(tableMangerTool)', function (obj) { //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
             var data = obj.data //获得当前行数据
                 , layEvent = obj.event; //获得 lay-event 对应的值
             if (layEvent === 'detail') {
@@ -234,7 +373,7 @@
                             , area: ['700px', '600px'] //宽高
                             , title: '自定义表格字段'
                             , page: false //开启分页
-                            , toolbar: 'default' //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+                            // , toolbar: 'default' //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
                             , totalRow: false //开启合计行
                             , parseData: function (res) {
                                 return {
@@ -277,6 +416,7 @@
                                 data: getField('#field_form')
                             },
                             success: function (data) {
+                                window.location.reload();
                             }
                         })
                     },
@@ -289,46 +429,9 @@
                         window.location.reload();
                     }
                 })
-            }else if (layEvent === 'instance') {
+            } else if (layEvent === 'instance') {
                 $('#instance_table_div').show()
-                let cols=getCols(data.id)
-                layer.open({
-                    type: 1,
-                    content: $('#instance'),
-                    area: ['1000px', '700px'], //宽高
-                    btn1: function (index) {
-                        layer.close(index);
-                        window.location.reload();
-                    },
-                    success: function (layernow, index) {
-                        table.render({
-                            elem: '#instance'
-                            , height: 'full'
-                            , url: '/table/recordList/' //数据接口
-                            , where: {
-                                tableId: data.id
-                            }
-                            , area: ['700px', '600px'] //宽高
-                            , title: '自定义实例表格'
-                            , page: false //开启分页
-                            , toolbar: 'default' //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
-                            , totalRow: false //开启合计行
-                            , parseData: function (res) {
-                                return {
-                                    "code": res.code === 200 ? 0 : 1, //解析接口状态
-                                    "msg": res.msg, //解析提示文本
-                                    "count": res.data === null ? 0 : res.data.count, //解析数据长度
-                                    "data": res.data //解析数据列表
-                                };
-                            }
-                            , cols: cols
-                        });
-                    },
-                    end: function () {
-                        $('#field_table_div').hide()
-                        window.location.reload();
-                    }
-                })
+                showInsTable(table, data.id)
             }
         });
 

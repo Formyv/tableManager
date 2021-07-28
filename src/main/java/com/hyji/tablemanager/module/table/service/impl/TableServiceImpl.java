@@ -88,7 +88,7 @@ public class TableServiceImpl implements TableService {
     }
 
     @Override
-    public Record record(TableRequestParam param) {
+    public List<Col> record(TableRequestParam param) {
         return tableMapper.record(param);
     }
 

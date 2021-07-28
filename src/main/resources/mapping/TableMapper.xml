@@ -143,30 +143,50 @@
 
     <select id="recordList" resultMap="recordMap">
         select r.id,
-               t.id             as tableId,
-               i.field_id       as fieldId,
-               f.field_name      as fieldName,
-               i.instance_value as instanceValue
+               t.id                                   as tableId,
+               i.field_id                             as fieldId,
+               f.field_name                           as fieldName,
+               nvl(dict.dict_value, i.instance_value) as instanceValue
         from tt_record r
                  left join tt_table_info t on t.id = r.table_id
                  left join tt_instance i on r.id = i.record_id
                  left join tt_field_info f on i.field_id = f.id
+                 left join tt_dict dict on f.FIELD_TYPE = dict.DICT_TYPE and i.INSTANCE_VALUE = dict.DICT_KEY
         where t.id = #{param.tableId}
           and r.del_flag = 0
           and t.del_flag = 0
+        order by r.id
     </select>
 
-    <select id="record" resultMap="recordMap">
-        select r.id,
-               t.id             as tableId,
-               i.field_id       as fieldId,
-               i.instance_value as instanceValue
-        from tt_reocrd r
+    <resultMap id="ColMap" type="com.hyji.tablemanager.module.table.pojo.Col">
+        <id column="fieldName" property="fieldName" jdbcType="VARCHAR"/>
+        <result column="fieldNameCn" property="fieldNameCn" jdbcType="VARCHAR"/>
+        <result column="fieldType" property="fieldType" jdbcType="VARCHAR"/>
+        <result column="instanceValue" property="instanceValue" jdbcType="VARCHAR"/>
+        <collection property="dictList" javaType="java.util.ArrayList"
+                    ofType="com.hyji.tablemanager.module.table.pojo.Dict">
+            <result column="dictKey" property="dictKey"/>
+            <result column="dictValue" property="dictValue"/>
+        </collection>
+    </resultMap>
+
+    <select id="record" resultMap="ColMap">
+        select r.id             as id,
+               f.field_name     as fieldName,
+               f.field_name_cn  as fieldNameCn,
+               f.field_type     as fieldType,
+               i.instance_value as instanceValue,
+               dict.dict_key    as dictKey,
+               dict.dict_value  as dictValue
+        from tt_record r
                  left join tt_table_info t on t.id = r.table_id
                  left join tt_instance i on r.id = i.record_id
+                 left join tt_field_info f on i.field_id = f.id
+                 left join tt_dict dict on f.field_type = dict.dict_type
         where r.id = #{param.recordId}
           and r.del_flag = 0
-          and t.dle_flag = 0
+          and t.del_flag = 0
+        order by r.id
     </select>
 
     <select id="getFieldsByTableId" resultType="com.hyji.tablemanager.module.table.pojo.Field">
